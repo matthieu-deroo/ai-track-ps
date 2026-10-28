@@ -9,15 +9,16 @@ issues that still need confirmation before being treated as product defects.
 
 | Test case | Request / precondition | Expected | Actual result / evidence | Triage |
 |---|---|---|---|---|
-| TEAM-03 | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Empty Team","members":[]}` | Reject team with no members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and checking whether it persists with zero members. |
-| TEAM-04a | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Omitted Members"}` | Reject missing members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and checking its member list. |
-| TEAM-04b | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Null Members","members":null}` | Reject null members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and checking its member list. |
-| RETRO-01 retrieve | `GET /api/retrospectives/4` after retrospective creation | Successful retrieval (`2xx`). | `500 Internal Server Error`. | **Product defect candidate.** A created retrospective could not be retrieved; investigate server logs and repeat with a fresh retrospective. |
-| CLOSE-01 verify | `GET /api/retrospectives/4` after close request | Successful retrieval showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET as RETRO-01; closure status could not be verified. Retest after investigating the retrieval failure. |
-| CLOSE-02 verify | `GET /api/retrospectives/4` after reopen probe | Successful retrieval still showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET; the run provides no evidence of whether the retrospective stayed closed. |
-| CLOSE-03 verify | `GET /api/retrospectives/4` after repeating close | Successful retrieval showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET; the run provides no evidence of the final state. |
-| FEEDBACK-02c | `POST /api/retrospectives/5/feedback-items` with type `ACTION_ITEM` | Expected `2xx` for an `ACTION_ITEM` feedback item. | `400 Bad Request`. | **Test/API contract mismatch to investigate, not yet a confirmed defect.** The API reference documents action items at `POST /api/retrospectives/{id}/action-items` with a priority field. Repeat using that endpoint and a valid priority. |
-| CLOSED-FEEDBACK-03 | `DELETE /api/feedback-items/3` where the test assumes the feedback belongs to a closed retrospective | Reject deletion (`4xx`) and preserve the item. | `204 No Content`. | **Candidate defect — BR-5.** Confirm item 3 belonged to the closed retrospective and retrieve its feedback list to determine whether it was deleted. |
+| TEAM-03 | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Empty Team","members":[]}` | Reject team with no members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and verifying its persisted state.
+| TEAM-04a | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Omitted Members"}` | Reject missing members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and verifying its persisted state.
+| TEAM-04b | `POST /api/teams` with `{"name":"QA-JP {{$guid}} Null Members","members":null}` | Reject null members (`4xx`). | `201 Created`. | **Candidate defect — BR-1.** Confirm by retrieving the created team and verifying its persisted state.
+| RETRO-01 retrieve | `GET /api/retrospectives/4` after retrospective creation | Successful retrieval (`2xx`). | `500 Internal Server Error`. | **Product defect candidate.** A created retrospective is not retrievable.
+| CLOSE-01 verify | `GET /api/retrospectives/4` after close request | Successful retrieval showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET as RETRO-01; closure status could not be verified.
+| CLOSE-02 verify | `GET /api/retrospectives/4` after reopen probe | Successful retrieval still showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET; the run provides no evidence of the reopen state.
+| CLOSE-03 verify | `GET /api/retrospectives/4` after repeating close | Successful retrieval showing `CLOSED`. | `500 Internal Server Error`. | Same failing GET; the run provides no evidence of the repeated close outcome.
+| FEEDBACK-02c | `POST /api/retrospectives/5/feedback-items` with type `ACTION_ITEM` | Expected `2xx` for an `ACTION_ITEM` feedback item. | `400 Bad Request`. | **Test/API contract mismatch to investigate.**
+| ACTION-ITEM-REOPEN-01 | `PATCH /api/action-items/{id}` with `{"completed": false}` | Reject reopening a completed action item or require an explicit workflow to reopen it. | Request succeeds and the action item is reopened. | **Defect — state-change control gap.** Direct API payload allows reopening a completed action item.
+| CLOSED-FEEDBACK-03 | `DELETE /api/feedback-items/3` where the test assumes the feedback belongs to a closed retrospective | Reject deletion (`4xx`) and preserve the item. | `204 No Content`. | **Candidate defect — business rule enforcement.** Confirm whether deletion should be blocked for closed-retrospective feedback.
 
 ### Follow-up needed
 
