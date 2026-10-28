@@ -11,3 +11,4 @@
 # Block 3
 
 Prompted the exercise twice, got different details in terms of output and judgement about the value of a test.
+Checked that we cannot uncomplete an action. This test failed.
