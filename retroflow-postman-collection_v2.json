@@ -1,0 +1,1513 @@
+{
+    "info":  {
+                 "_postman_id":  "d998aaf0-f713-4f16-9990-7f6a4e9525e1",
+                 "name":  "RetroFlow QA - Core Business Rules",
+                 "description":  "API checks for RetroFlow team creation, retrospective lifecycle, feedback immutability, action-item completion, and one explicitly manual concurrency scenario. Run in order. The concurrency folder must be executed by sending its two create requests concurrently from separate tabs; Collection Runner sends requests sequentially and is not valid concurrency evidence. This collection creates persistent QA data and does not clean it up.",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "value":  "https://ai-track-ps-test-retroflow-production.up.railway.app",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "teamId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "teamId2",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "retroId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "newRetroId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "feedbackId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "invalidTeamId",
+                         "value":  "99999999",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "actionRetroId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "actionItemId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "concurrencyTeamId",
+                         "value":  "",
+                         "type":  "string"
+                     }
+                 ],
+    "event":  [
+                  {
+                      "listen":  "test",
+                      "script":  {
+                                     "type":  "text/javascript",
+                                     "exec":  [
+                                                  "const name = pm.info.requestName;",
+                                                  "if (name.includes(\u0027[CONCURRENCY]\u0027)) {",
+                                                  "  pm.test(\u0027Concurrent create has no server error\u0027, function () { pm.expect(pm.response.code).to.be.below(500); });",
+                                                  "} else if (name.includes(\u0027[NEGATIVE]\u0027) || name.includes(\u0027[PROBE]\u0027)) {",
+                                                  "  pm.test(\u0027Request is rejected with a 4xx response\u0027, function () { pm.expect(pm.response.code).to.be.within(400, 499); });",
+                                                  "} else if (name.includes(\u0027[EITHER]\u0027)) {",
+                                                  "  pm.test(\u0027Request does not cause a server error\u0027, function () { pm.expect(pm.response.code).to.be.below(500); });",
+                                                  "} else {",
+                                                  "  pm.test(\u0027Request succeeds with a 2xx response\u0027, function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                                                  "}",
+                                                  "if (pm.response.code \u003e= 200 \u0026\u0026 pm.response.code \u003c 300 \u0026\u0026 pm.response.text()) {",
+                                                  "  let body; try { body = pm.response.json(); } catch (e) { body = null; }",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027TEAM-01 Create\u0027)) pm.collectionVariables.set(\u0027teamId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027TEAM-02 Create\u0027)) pm.collectionVariables.set(\u0027teamId2\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027RETRO-01 Create\u0027)) pm.collectionVariables.set(\u0027retroId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027RETRO-03 Create\u0027)) pm.collectionVariables.set(\u0027newRetroId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027FEEDBACK-01 Add\u0027)) pm.collectionVariables.set(\u0027feedbackId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027ACTION setup - Create dedicated open retrospective\u0027)) pm.collectionVariables.set(\u0027actionRetroId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027ACTION-01 Create action item\u0027)) pm.collectionVariables.set(\u0027actionItemId\u0027, body.id);",
+                                                  "  if (body \u0026\u0026 name.includes(\u0027RETRO-05 Create fresh concurrency team\u0027)) pm.collectionVariables.set(\u0027concurrencyTeamId\u0027, body.id);",
+                                                  "}"
+                                              ]
+                                 }
+                  }
+              ],
+    "item":  [
+                 {
+                     "name":  "1 - Teams",
+                     "item":  [
+                                  {
+                                      "name":  "TEAM-01 Create team with one member",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"QA-JP {{$guid}} Team One\",\"members\":[\"Alice\"]}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-01 Retrieve created team",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-02 Create team with multiple members",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"QA-JP {{$guid}} Team Two\",\"members\":[\"Alice\",\"Bob\"]}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-02 Retrieve created team",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId2}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId2}}"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-03 [NEGATIVE] Create team with empty members",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"QA-JP {{$guid}} Empty Team\",\"members\":[]}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-04a [NEGATIVE] Create team without members property",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"QA-JP {{$guid}} Omitted Members\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "TEAM-04b [NEGATIVE] Create team with null members",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"name\":\"QA-JP {{$guid}} Null Members\",\"members\":null}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams"
+                                                                           ]
+                                                              }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "2 - Retrospective lifecycle",
+                     "item":  [
+                                  {
+                                      "name":  "RETRO-01 Create first retrospective",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"title\":\"QA-JP {{$guid}} Sprint Retro One\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "RETRO-01 Verify created retrospective in team list",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "RETRO-02 [NEGATIVE] Attempt second open retrospective",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"title\":\"QA-JP {{$guid}} Second Open Retro\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "RETRO-02 Verify team still has only one open retro",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "const payload = pm.response.json();",
+                                                                                    "const items = Array.isArray(payload) ? payload : (payload.retrospectives || payload.content || payload.data);",
+                                                                                    "pm.test(\"Team list contains at most one OPEN retrospective\", function () { pm.expect(items).to.be.an(\"array\"); pm.expect(items.filter(x =\u003e x.status === \"OPEN\").length).to.be.at.most(1); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "RETRO-04 [NEGATIVE] Create retrospective for nonexistent team",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"title\":\"QA-JP Invalid Team Retro\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{invalidTeamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{invalidTeamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSE-01 Close the open retrospective",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{retroId}}/close",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{retroId}}",
+                                                                               "close"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSE-01 Verify retrospective is closed",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "const payload = pm.response.json();",
+                                                                                    "const items = Array.isArray(payload) ? payload : (payload.retrospectives || payload.content || payload.data);",
+                                                                                    "const target = items.find(x =\u003e String(x.id) === String(pm.collectionVariables.get(\"retroId\")));",
+                                                                                    "pm.test(\"Target retrospective remains CLOSED\", function () { pm.expect(target, \"target retrospective is present\").to.exist; pm.expect(target.status).to.eql(\"CLOSED\"); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "CLOSE-02 [PROBE] Attempt to reopen closed retrospective",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"status\":\"OPEN\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{retroId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{retroId}}"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSE-02 Verify retrospective remains closed",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "const payload = pm.response.json();",
+                                                                                    "const items = Array.isArray(payload) ? payload : (payload.retrospectives || payload.content || payload.data);",
+                                                                                    "const target = items.find(x =\u003e String(x.id) === String(pm.collectionVariables.get(\"retroId\")));",
+                                                                                    "pm.test(\"Target retrospective remains CLOSED\", function () { pm.expect(target, \"target retrospective is present\").to.exist; pm.expect(target.status).to.eql(\"CLOSED\"); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "CLOSE-03 [EITHER] Close already closed retrospective",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{retroId}}/close",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{retroId}}",
+                                                                               "close"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSE-03 Verify retrospective remains closed",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  },
+                                      "event":  [
+                                                    {
+                                                        "listen":  "test",
+                                                        "script":  {
+                                                                       "type":  "text/javascript",
+                                                                       "exec":  [
+                                                                                    "const payload = pm.response.json();",
+                                                                                    "const items = Array.isArray(payload) ? payload : (payload.retrospectives || payload.content || payload.data);",
+                                                                                    "const target = items.find(x =\u003e String(x.id) === String(pm.collectionVariables.get(\"retroId\")));",
+                                                                                    "pm.test(\"Target retrospective remains CLOSED\", function () { pm.expect(target, \"target retrospective is present\").to.exist; pm.expect(target.status).to.eql(\"CLOSED\"); });"
+                                                                                ]
+                                                                   }
+                                                    }
+                                                ]
+                                  },
+                                  {
+                                      "name":  "RETRO-03 Create another retrospective after closure",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"title\":\"QA-JP {{$guid}} Retro After Close\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "RETRO-03 Verify retrospectives for team",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "RETRO-05 - Manual concurrency (do not use Runner as concurrency evidence)",
+                                      "description":  "Create a fresh team, then open both RETRO-05 POST requests in separate Postman tabs and send them as close together as possible. After both complete, send the verification GET. Collection Runner executes sequentially.",
+                                      "item":  [
+                                                   {
+                                                       "name":  "RETRO-05 Create fresh concurrency team",
+                                                       "request":  {
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/teams",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "teams"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Creates isolated team for simultaneous retrospective creation.",
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"name\":\"QA-JP {{$guid}} Concurrency Team\",\"members\":[\"Alice\",\"Bob\"]}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "RETRO-05 [CONCURRENCY] Create retrospective A - send manually in parallel",
+                                                       "request":  {
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/teams/{{concurrencyTeamId}}/retrospectives",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "teams",
+                                                                                                "{{concurrencyTeamId}}",
+                                                                                                "retrospectives"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Send concurrently with the request for Retro B, not sequentially in Collection Runner.",
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"title\":\"QA-JP Concurrent Retro A\"}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "RETRO-05 [CONCURRENCY] Create retrospective B - send manually in parallel",
+                                                       "request":  {
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/teams/{{concurrencyTeamId}}/retrospectives",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "teams",
+                                                                                                "{{concurrencyTeamId}}",
+                                                                                                "retrospectives"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Send concurrently with the request for Retro A, not sequentially in Collection Runner.",
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"title\":\"QA-JP Concurrent Retro B\"}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "RETRO-05 Verify final retrospective state",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "header":  [
+
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/teams/{{concurrencyTeamId}}/retrospectives",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "teams",
+                                                                                                "{{concurrencyTeamId}}",
+                                                                                                "retrospectives"
+                                                                                            ]
+                                                                               },
+                                                                       "description":  "Inspect the response and confirm that no more than one retrospective is OPEN."
+                                                                   },
+                                                       "event":  [
+                                                                     {
+                                                                         "listen":  "test",
+                                                                         "script":  {
+                                                                                        "type":  "text/javascript",
+                                                                                        "exec":  [
+                                                                                                     "const payload = pm.response.json();",
+                                                                                                     "const items = Array.isArray(payload) ? payload : (payload.retrospectives || payload.content || payload.data);",
+                                                                                                     "pm.test(\"Team list contains at most one OPEN retrospective\", function () { pm.expect(items).to.be.an(\"array\"); pm.expect(items.filter(x =\u003e x.status === \"OPEN\").length).to.be.at.most(1); });"
+                                                                                                 ]
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                   }
+                                               ]
+                                  },
+                                  {
+                                      "name":  "ACTION setup - Create dedicated open retrospective",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/teams/{{teamId2}}/retrospectives",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "teams",
+                                                                               "{{teamId2}}",
+                                                                               "retrospectives"
+                                                                           ]
+                                                              },
+                                                      "description":  "Uses Team Two, separate from the team whose retrospective is closed for feedback protection.",
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"title\":\"QA-JP Action Item Rule Retro\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               }
+                                                  }
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "3 - Feedback",
+                     "item":  [
+                                  {
+                                      "name":  "FEEDBACK-01 Add feedback to open retrospective",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"The demo went smoothly\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-01 Verify created feedback",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-02a Add WENT_WELL feedback",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Clear sprint goal\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-02b Add NEEDS_IMPROVEMENT feedback",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Handoffs were delayed\",\"type\":\"NEEDS_IMPROVEMENT\",\"submittedBy\":\"Bob\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-02c Add action item using documented endpoint",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Document deployment steps\",\"priority\":\"HIGH\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/action-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "action-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-02 Verify ordinary feedback items",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-03a [NEGATIVE] Add unsupported feedback type",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Bad type example\",\"type\":\"INVALID_TYPE\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-03b [NEGATIVE] Add feedback with empty content",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "FEEDBACK-03 Verify invalid feedback was not added",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "ACTION-01/02 - Completed action item cannot be uncompleted",
+                                      "description":  "Runs against the dedicated open retrospective created in the lifecycle folder.",
+                                      "item":  [
+                                                   {
+                                                       "name":  "ACTION-01 Create action item",
+                                                       "request":  {
+                                                                       "method":  "POST",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/retrospectives/{{actionRetroId}}/action-items",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "retrospectives",
+                                                                                                "{{actionRetroId}}",
+                                                                                                "action-items"
+                                                                                            ]
+                                                                               },
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"content\":\"Document deployment steps\",\"priority\":\"HIGH\",\"submittedBy\":\"Alice\"}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-01 Verify newly created item is incomplete",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "header":  [
+
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items?completed=false",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items"
+                                                                                            ],
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "completed",
+                                                                                                     "value":  "false"
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                       "description":  "Verify returned items include the created actionItemId; API response shape should be checked manually."
+                                                                   },
+                                                       "event":  [
+                                                                     {
+                                                                         "listen":  "test",
+                                                                         "script":  {
+                                                                                        "type":  "text/javascript",
+                                                                                        "exec":  [
+                                                                                                     "const payload = pm.response.json();",
+                                                                                                     "const items = Array.isArray(payload) ? payload : (payload.actionItems || payload.items || payload.content || payload.data);",
+                                                                                                     "const id = String(pm.collectionVariables.get(\"actionItemId\"));",
+                                                                                                     "pm.test(\"Action item appears in incomplete results\", function () { pm.expect(items).to.be.an(\"array\"); pm.expect(items.some(x =\u003e String(x.id) === id)).to.eql(true); });"
+                                                                                                 ]
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-01 Mark action item completed",
+                                                       "request":  {
+                                                                       "method":  "PATCH",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items/{{actionItemId}}/complete",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items",
+                                                                                                "{{actionItemId}}",
+                                                                                                "complete"
+                                                                                            ]
+                                                                               },
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"completed\":true}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-01 Verify item appears completed",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "header":  [
+
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items?completed=true",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items"
+                                                                                            ],
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "completed",
+                                                                                                     "value":  "true"
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                       "description":  "Verify returned items include actionItemId with unchanged content and priority."
+                                                                   },
+                                                       "event":  [
+                                                                     {
+                                                                         "listen":  "test",
+                                                                         "script":  {
+                                                                                        "type":  "text/javascript",
+                                                                                        "exec":  [
+                                                                                                     "const payload = pm.response.json();",
+                                                                                                     "const items = Array.isArray(payload) ? payload : (payload.actionItems || payload.items || payload.content || payload.data);",
+                                                                                                     "const id = String(pm.collectionVariables.get(\"actionItemId\"));",
+                                                                                                     "const match = items.find(x =\u003e String(x.id) === id);",
+                                                                                                     "pm.test(\"Action item appears in completed results\", function () { pm.expect(match, \"action item exists\").to.exist; pm.expect(match.completed).to.eql(true); });"
+                                                                                                 ]
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-02 [NEGATIVE] Attempt to uncomplete action item",
+                                                       "request":  {
+                                                                       "method":  "PATCH",
+                                                                       "header":  [
+                                                                                      {
+                                                                                          "key":  "Content-Type",
+                                                                                          "value":  "application/json"
+                                                                                      }
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items/{{actionItemId}}/complete",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items",
+                                                                                                "{{actionItemId}}",
+                                                                                                "complete"
+                                                                                            ]
+                                                                               },
+                                                                       "body":  {
+                                                                                    "mode":  "raw",
+                                                                                    "raw":  "{\"completed\":false}",
+                                                                                    "options":  {
+                                                                                                    "raw":  {
+                                                                                                                "language":  "json"
+                                                                                                            }
+                                                                                                }
+                                                                                }
+                                                                   }
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-02 Verify item remains completed",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "header":  [
+
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items?completed=true",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items"
+                                                                                            ],
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "completed",
+                                                                                                     "value":  "true"
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                       "description":  "Verify item still appears in completed results with unchanged fields."
+                                                                   },
+                                                       "event":  [
+                                                                     {
+                                                                         "listen":  "test",
+                                                                         "script":  {
+                                                                                        "type":  "text/javascript",
+                                                                                        "exec":  [
+                                                                                                     "const payload = pm.response.json();",
+                                                                                                     "const items = Array.isArray(payload) ? payload : (payload.actionItems || payload.items || payload.content || payload.data);",
+                                                                                                     "const id = String(pm.collectionVariables.get(\"actionItemId\"));",
+                                                                                                     "const match = items.find(x =\u003e String(x.id) === id);",
+                                                                                                     "pm.test(\"Action item appears in completed results\", function () { pm.expect(match, \"action item exists\").to.exist; pm.expect(match.completed).to.eql(true); });"
+                                                                                                 ]
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                   },
+                                                   {
+                                                       "name":  "ACTION-02 Verify item is absent from incomplete results",
+                                                       "request":  {
+                                                                       "method":  "GET",
+                                                                       "header":  [
+
+                                                                                  ],
+                                                                       "url":  {
+                                                                                   "raw":  "{{baseUrl}}/api/action-items?completed=false",
+                                                                                   "host":  [
+                                                                                                "{{baseUrl}}"
+                                                                                            ],
+                                                                                   "path":  [
+                                                                                                "api",
+                                                                                                "action-items"
+                                                                                            ],
+                                                                                   "query":  [
+                                                                                                 {
+                                                                                                     "key":  "completed",
+                                                                                                     "value":  "false"
+                                                                                                 }
+                                                                                             ]
+                                                                               },
+                                                                       "description":  "Verify actionItemId does not appear in incomplete results."
+                                                                   },
+                                                       "event":  [
+                                                                     {
+                                                                         "listen":  "test",
+                                                                         "script":  {
+                                                                                        "type":  "text/javascript",
+                                                                                        "exec":  [
+                                                                                                     "const payload = pm.response.json();",
+                                                                                                     "const items = Array.isArray(payload) ? payload : (payload.actionItems || payload.items || payload.content || payload.data);",
+                                                                                                     "const id = String(pm.collectionVariables.get(\"actionItemId\"));",
+                                                                                                     "pm.test(\"Action item is absent from incomplete results\", function () { pm.expect(items).to.be.an(\"array\"); pm.expect(items.some(x =\u003e String(x.id) === id)).to.eql(false); });"
+                                                                                                 ]
+                                                                                    }
+                                                                     }
+                                                                 ]
+                                                   }
+                                               ]
+                                  }
+                              ]
+                 },
+                 {
+                     "name":  "4 - Closed retrospective feedback protection",
+                     "item":  [
+                                  {
+                                      "name":  "Close feedback-test retrospective before immutable checks",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/close",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "close"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-01 [NEGATIVE] Attempt to add feedback after close",
+                                      "request":  {
+                                                      "method":  "POST",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Late feedback attempt\",\"type\":\"NEEDS_IMPROVEMENT\",\"submittedBy\":\"Alice\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-01 Verify feedback list unchanged",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-02 [NEGATIVE] Attempt to modify feedback after close",
+                                      "request":  {
+                                                      "method":  "PUT",
+                                                      "header":  [
+                                                                     {
+                                                                         "key":  "Content-Type",
+                                                                         "value":  "application/json"
+                                                                     }
+                                                                 ],
+                                                      "body":  {
+                                                                   "mode":  "raw",
+                                                                   "raw":  "{\"content\":\"Changed after closure\"}",
+                                                                   "options":  {
+                                                                                   "raw":  {
+                                                                                               "language":  "json"
+                                                                                           }
+                                                                               }
+                                                               },
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/feedback-items/{{feedbackId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "feedback-items",
+                                                                               "{{feedbackId}}"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-02 Verify original feedback remains",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-03 [NEGATIVE] Attempt to delete feedback after close",
+                                      "request":  {
+                                                      "method":  "DELETE",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/feedback-items/{{feedbackId}}",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "feedback-items",
+                                                                               "{{feedbackId}}"
+                                                                           ]
+                                                              }
+                                                  }
+                                  },
+                                  {
+                                      "name":  "CLOSED-FEEDBACK-03 Verify original feedback still exists",
+                                      "request":  {
+                                                      "method":  "GET",
+                                                      "url":  {
+                                                                  "raw":  "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+                                                                  "host":  [
+                                                                               "{{baseUrl}}"
+                                                                           ],
+                                                                  "path":  [
+                                                                               "api",
+                                                                               "retrospectives",
+                                                                               "{{newRetroId}}",
+                                                                               "feedback-items"
+                                                                           ]
+                                                              }
+                                                  }
+                                  }
+                              ]
+                 }
+             ]
+}
