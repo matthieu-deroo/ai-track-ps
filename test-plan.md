@@ -127,6 +127,15 @@ update the order and record why.
 - **Concurrency check:** only if time permits, use the same QA instance to submit two
   retrospective-create requests close together for one team. This is a targeted sanity
   check of the one-open rule, not a load test.
+- **Multi-user concurrency check:** use parallel HTTP requests from two or more team
+  members to add distinct feedback items to the same open retrospective. Verify that every
+  successful response has its own item ID, every item can be retrieved exactly once, and
+  each item retains the submitted content, type, and member name. This catches lost
+  updates, duplicate writes, or incorrect attribution when users act at the same time.
+  Also race feedback creation against closing that retrospective. The final state must be
+  closed, and no feedback may be added after closure; if feedback is accepted before the
+  close takes effect, it must remain intact in the closed record. Repeat the race several
+  times with fresh data. This is a targeted correctness check, not a load test.
 
 ### Seed data
 
