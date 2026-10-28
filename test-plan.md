@@ -1,3 +1,47 @@
+# RetroFlow: Domain and Highest-Risk Rule
+
+## What the system is for
+
+RetroFlow gives each team one place to record its retrospectives: what went well, what
+needs improvement, and what the team agreed to do next. It also keeps a record of
+whether those actions have been completed.
+
+## How the records fit together
+
+- **Team:** Has a name and a list of members. A team must have at least one member.
+- **Retrospective:** Belongs to a team and has a title, date, and status: `OPEN` or
+  `CLOSED`. A team can have several retrospectives, but only one may be open at a time.
+- **Feedback item:** Belongs to a retrospective. Its type is `WENT_WELL`,
+  `NEEDS_IMPROVEMENT`, or `ACTION_ITEM`, and it records the submitter's name.
+- **Action item:** A feedback item of type `ACTION_ITEM`. It also has a priority
+  (`LOW`, `MEDIUM`, or `HIGH`) and a `completed` flag.
+
+## Rules that protect the records
+
+1. A retrospective can be closed by a team member, but it cannot be reopened.
+2. Feedback can be added while a retrospective is open. Once it is closed, its feedback
+   cannot be changed or deleted.
+3. A completed action item cannot be marked incomplete again.
+4. Action items can be searched by priority and by whether they are completed.
+
+## Highest-risk silent failure
+
+**Feedback in a closed retrospective must not be changed or deleted.**
+
+Closing a retrospective should preserve the record of what the team discussed and
+committed to do. If the API allows someone to change or delete that feedback afterward,
+the team's history could become incomplete or misleading. That may hide an important
+concern or erase an agreed action, making it harder for the team to follow through.
+Because closed retrospectives cannot be reopened, correcting the record may also be
+difficult.
+
+This is the highest risk because RetroFlow's central value is a trustworthy record
+across teams. By comparison, multiple open retrospectives could split a team's work,
+and letting completed actions become incomplete could distort progress reporting; both
+matter, but post-close edits can undermine the historical record itself.
+
+---
+
 # RetroFlow: Risk-Based QA Test Plan
 
 ## Purpose and scope
