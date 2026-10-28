@@ -1,0 +1,1107 @@
+{
+	"id": "442982ac-6c59-45a8-a2c6-057fad50c718",
+	"name": "RetroFlow QA - Core Business Rules",
+	"timestamp": "2026-10-28T11:00:18.481Z",
+	"collection_id": "38147704-4fb16fe9-aceb-4a10-9c10-6c873254f090",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 26,
+	"delay": 0,
+	"persist": true,
+	"status": "error",
+	"startedAt": "2026-10-28T11:00:13.297Z",
+	"totalFail": 9,
+	"results": [
+		{
+			"id": "835192a9-fbc5-408d-80dd-440347836132",
+			"name": "TEAM-01 Create team with one member",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams",
+			"time": 140,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				140
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "1f420120-cd54-495a-9692-54bab2ad3966",
+			"name": "TEAM-01 Retrieve created team",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6",
+			"time": 55,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				55
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "52d10516-b31c-43e5-9f1b-4271f335edeb",
+			"name": "TEAM-02 Create team with multiple members",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams",
+			"time": 44,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				44
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "7f181755-abd4-4d17-9219-9c18f2baed7e",
+			"name": "TEAM-02 Retrieve created team",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/7",
+			"time": 55,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				55
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "c4e6693f-9c71-48d5-9dba-ac917077476b",
+			"name": "TEAM-03 [NEGATIVE] Create team with empty members",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams",
+			"time": 42,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": false
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				42
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": false
+				}
+			]
+		},
+		{
+			"id": "bce54db4-75b4-4248-bcee-20f9820b09a8",
+			"name": "TEAM-04a [NEGATIVE] Create team without members property",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams",
+			"time": 46,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": false
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				46
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": false
+				}
+			]
+		},
+		{
+			"id": "47ec1bbf-d3cb-48d9-a26a-ccc73f652bf5",
+			"name": "TEAM-04b [NEGATIVE] Create team with null members",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams",
+			"time": 40,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": false
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				40
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": false
+				}
+			]
+		},
+		{
+			"id": "501cb24b-6d7c-4604-82a7-3ae6e2d9557c",
+			"name": "RETRO-01 Create first retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6/retrospectives",
+			"time": 120,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				120
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "189ce1e5-d237-47be-b2e8-fba97d64a66f",
+			"name": "RETRO-01 Retrieve created retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4",
+			"time": 157,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": false
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				157
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": false
+				}
+			]
+		},
+		{
+			"id": "69e5a8e9-db8a-4d3e-a043-10596f4c6563",
+			"name": "RETRO-02 [NEGATIVE] Attempt second open retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6/retrospectives",
+			"time": 44,
+			"responseCode": {
+				"code": 409,
+				"name": "Conflict"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				44
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "7ca13823-daa1-4af2-86e6-2f7524f06bd0",
+			"name": "RETRO-02 Verify team still has only one open retro",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6/retrospectives",
+			"time": 46,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				46
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "20a91120-8b42-4807-bfc4-8bbae27d7aae",
+			"name": "RETRO-04 [NEGATIVE] Create retrospective for nonexistent team",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/99999999/retrospectives",
+			"time": 42,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				42
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "060c5c03-8626-4d2f-805c-c95f7a3a4dfb",
+			"name": "CLOSE-01 Close the open retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4/close",
+			"time": 41,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				41
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "8f180523-102b-42fc-afdf-f95bcdabe4a9",
+			"name": "CLOSE-01 Verify retrospective is closed",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4",
+			"time": 58,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": false
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				58
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": false
+				}
+			]
+		},
+		{
+			"id": "b35d2192-0ddb-4893-a3b9-f46b86d07781",
+			"name": "CLOSE-02 [PROBE] Attempt to reopen closed retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4",
+			"time": 49,
+			"responseCode": {
+				"code": 405,
+				"name": "Method Not Allowed"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				49
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "f1b85294-5165-422f-9cda-fee24c234e57",
+			"name": "CLOSE-02 Verify retrospective remains closed",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4",
+			"time": 53,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": false
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				53
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": false
+				}
+			]
+		},
+		{
+			"id": "c829544e-05f0-4cfc-b06d-5cbc7d45ede1",
+			"name": "CLOSE-03 [EITHER] Close already closed retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4/close",
+			"time": 41,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request does not cause a server error": true
+			},
+			"testPassFailCounts": {
+				"Request does not cause a server error": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				41
+			],
+			"allTests": [
+				{
+					"Request does not cause a server error": true
+				}
+			]
+		},
+		{
+			"id": "b5a927e7-a37a-4b2a-985c-1c5d151f7af3",
+			"name": "CLOSE-03 Verify retrospective remains closed",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/4",
+			"time": 48,
+			"responseCode": {
+				"code": 500,
+				"name": "Internal Server Error"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": false
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				48
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": false
+				}
+			]
+		},
+		{
+			"id": "8ccbd3e9-49f6-4211-979a-22c20d599f82",
+			"name": "RETRO-03 Create another retrospective after closure",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6/retrospectives",
+			"time": 51,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				51
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "fc05f4df-1476-44ab-be75-5fd4d7c857b1",
+			"name": "RETRO-03 Verify retrospectives for team",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/teams/6/retrospectives",
+			"time": 39,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				39
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "138967c5-3eca-4c8a-ab21-41d643dd8919",
+			"name": "FEEDBACK-01 Add feedback to open retrospective",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 43,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				43
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "733d7e5f-60dd-4a4c-817e-148bf5e14a07",
+			"name": "FEEDBACK-01 Verify created feedback",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 40,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				40
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "d4eca97a-4a72-4a03-8354-a11eac325936",
+			"name": "FEEDBACK-02a Add WENT_WELL feedback",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 44,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				44
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "38ce31b5-6af3-4aa8-8764-182ef417d8c9",
+			"name": "FEEDBACK-02b Add NEEDS_IMPROVEMENT feedback",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 53,
+			"responseCode": {
+				"code": 201,
+				"name": "Created"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				53
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "5e27f8d9-b22c-4ef4-a690-fed7723369ba",
+			"name": "FEEDBACK-02c Add ACTION_ITEM feedback",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 55,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": false
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				55
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": false
+				}
+			]
+		},
+		{
+			"id": "bd5ad023-66df-44f3-be8e-1fa6e26f5038",
+			"name": "FEEDBACK-02 Verify all feedback types",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 44,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				44
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "8ee43b9d-7c69-4da6-bcef-65e5b5503e77",
+			"name": "FEEDBACK-03a [NEGATIVE] Add unsupported feedback type",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 45,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				45
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "44e447a7-162d-4f68-93b4-6087ac7de639",
+			"name": "FEEDBACK-03b [NEGATIVE] Add feedback with empty content",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 103,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				103
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "0cb91a5b-6d98-4b3c-a4c8-4f660f4a4ac5",
+			"name": "FEEDBACK-03 Verify invalid feedback was not added",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 37,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				37
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "cf004f50-bcbc-4dd5-9ee0-d5bb65db00ac",
+			"name": "Close feedback-test retrospective before immutable checks",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/close",
+			"time": 41,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				41
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "1b90bb8c-f8df-4fe4-8006-71d8ae32f6ff",
+			"name": "CLOSED-FEEDBACK-01 [NEGATIVE] Attempt to add feedback after close",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 42,
+			"responseCode": {
+				"code": 409,
+				"name": "Conflict"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				42
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "58317d05-5929-440e-b028-72b13ddfb907",
+			"name": "CLOSED-FEEDBACK-01 Verify feedback list unchanged",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 43,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				43
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "23641c06-621e-4c8d-b98a-155bb072078f",
+			"name": "CLOSED-FEEDBACK-02 [NEGATIVE] Attempt to modify feedback after close",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/feedback-items/3",
+			"time": 36,
+			"responseCode": {
+				"code": 409,
+				"name": "Conflict"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": true
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				36
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": true
+				}
+			]
+		},
+		{
+			"id": "de2f4a78-e551-4c30-bbfe-424cb215f348",
+			"name": "CLOSED-FEEDBACK-02 Verify original feedback remains",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/retrospectives/5/feedback-items",
+			"time": 50,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Request succeeds with a 2xx response": true
+			},
+			"testPassFailCounts": {
+				"Request succeeds with a 2xx response": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				50
+			],
+			"allTests": [
+				{
+					"Request succeeds with a 2xx response": true
+				}
+			]
+		},
+		{
+			"id": "c9873391-92dc-4e94-8c3a-eec7dce3798d",
+			"name": "CLOSED-FEEDBACK-03 [NEGATIVE] Attempt to delete feedback after close",
+			"url": "https://ai-track-ps-test-retroflow-production.up.railway.app/api/feedback-items/3",
+			"time": 42,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Request is rejected with a 4xx response": false
+			},
+			"testPassFailCounts": {
+				"Request is rejected with a 4xx response": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				42
+			],
+			"allTests": [
+				{
+					"Request is rejected with a 4xx response": false
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1929,
+	"collection": {
+		"requests": [
+			{
+				"id": "835192a9-fbc5-408d-80dd-440347836132",
+				"method": "POST"
+			},
+			{
+				"id": "1f420120-cd54-495a-9692-54bab2ad3966",
+				"method": "GET"
+			},
+			{
+				"id": "52d10516-b31c-43e5-9f1b-4271f335edeb",
+				"method": "POST"
+			},
+			{
+				"id": "7f181755-abd4-4d17-9219-9c18f2baed7e",
+				"method": "GET"
+			},
+			{
+				"id": "c4e6693f-9c71-48d5-9dba-ac917077476b",
+				"method": "POST"
+			},
+			{
+				"id": "bce54db4-75b4-4248-bcee-20f9820b09a8",
+				"method": "POST"
+			},
+			{
+				"id": "47ec1bbf-d3cb-48d9-a26a-ccc73f652bf5",
+				"method": "POST"
+			},
+			{
+				"id": "501cb24b-6d7c-4604-82a7-3ae6e2d9557c",
+				"method": "POST"
+			},
+			{
+				"id": "189ce1e5-d237-47be-b2e8-fba97d64a66f",
+				"method": "GET"
+			},
+			{
+				"id": "69e5a8e9-db8a-4d3e-a043-10596f4c6563",
+				"method": "POST"
+			},
+			{
+				"id": "7ca13823-daa1-4af2-86e6-2f7524f06bd0",
+				"method": "GET"
+			},
+			{
+				"id": "20a91120-8b42-4807-bfc4-8bbae27d7aae",
+				"method": "POST"
+			},
+			{
+				"id": "060c5c03-8626-4d2f-805c-c95f7a3a4dfb",
+				"method": "PUT"
+			},
+			{
+				"id": "8f180523-102b-42fc-afdf-f95bcdabe4a9",
+				"method": "GET"
+			},
+			{
+				"id": "b35d2192-0ddb-4893-a3b9-f46b86d07781",
+				"method": "PUT"
+			},
+			{
+				"id": "f1b85294-5165-422f-9cda-fee24c234e57",
+				"method": "GET"
+			},
+			{
+				"id": "c829544e-05f0-4cfc-b06d-5cbc7d45ede1",
+				"method": "PUT"
+			},
+			{
+				"id": "b5a927e7-a37a-4b2a-985c-1c5d151f7af3",
+				"method": "GET"
+			},
+			{
+				"id": "8ccbd3e9-49f6-4211-979a-22c20d599f82",
+				"method": "POST"
+			},
+			{
+				"id": "fc05f4df-1476-44ab-be75-5fd4d7c857b1",
+				"method": "GET"
+			},
+			{
+				"id": "138967c5-3eca-4c8a-ab21-41d643dd8919",
+				"method": "POST"
+			},
+			{
+				"id": "733d7e5f-60dd-4a4c-817e-148bf5e14a07",
+				"method": "GET"
+			},
+			{
+				"id": "d4eca97a-4a72-4a03-8354-a11eac325936",
+				"method": "POST"
+			},
+			{
+				"id": "38ce31b5-6af3-4aa8-8764-182ef417d8c9",
+				"method": "POST"
+			},
+			{
+				"id": "5e27f8d9-b22c-4ef4-a690-fed7723369ba",
+				"method": "POST"
+			},
+			{
+				"id": "bd5ad023-66df-44f3-be8e-1fa6e26f5038",
+				"method": "GET"
+			},
+			{
+				"id": "8ee43b9d-7c69-4da6-bcef-65e5b5503e77",
+				"method": "POST"
+			},
+			{
+				"id": "44e447a7-162d-4f68-93b4-6087ac7de639",
+				"method": "POST"
+			},
+			{
+				"id": "0cb91a5b-6d98-4b3c-a4c8-4f660f4a4ac5",
+				"method": "GET"
+			},
+			{
+				"id": "cf004f50-bcbc-4dd5-9ee0-d5bb65db00ac",
+				"method": "PUT"
+			},
+			{
+				"id": "1b90bb8c-f8df-4fe4-8006-71d8ae32f6ff",
+				"method": "POST"
+			},
+			{
+				"id": "58317d05-5929-440e-b028-72b13ddfb907",
+				"method": "GET"
+			},
+			{
+				"id": "23641c06-621e-4c8d-b98a-155bb072078f",
+				"method": "PUT"
+			},
+			{
+				"id": "de2f4a78-e551-4c30-bbfe-424cb215f348",
+				"method": "GET"
+			},
+			{
+				"id": "c9873391-92dc-4e94-8c3a-eec7dce3798d",
+				"method": "DELETE"
+			}
+		]
+	}
+}
