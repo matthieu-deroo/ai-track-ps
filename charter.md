@@ -1,95 +1,172 @@
-# AI Track PS Charter
+# Exploratory Testing Charter — RetroFlow
 
-## 1. Project Purpose
-AI Track PS is a lightweight project-tracking and productivity initiative designed to help individuals or teams organize work, monitor progress, and leverage AI-assisted workflows to improve planning and execution.
+## Session goal
+Assess whether the RetroFlow backend preserves the core retrospective business rules under normal use and under edge conditions, with a particular focus on defects that would embarrass the CTO if the tool were opened to 12 teams.
 
-The repository serves as the foundation for building a practical, maintainable solution for tracking tasks, milestones, priorities, and status updates with minimal overhead.
+This is a focused, time-boxed session. The goal is not exhaustive coverage; it is to find the highest-risk defects quickly and determine whether the service is safe to put in front of real teams.
 
-## 2. Mission Statement
-To create a simple, useful, and extensible tracking system that supports:
-- clear task and project visibility,
-- AI-assisted status summarization,
-- better prioritization and decision-making,
-- easier collaboration across ongoing work.
+## Time box
+60–90 minutes
 
-## 3. Objectives
-- Define a clear and maintainable project workflow.
-- Centralize project planning, tracking, and reporting.
-- Use AI to support summarization, prioritization, and insight generation.
-- Keep the system easy to adopt and evolve over time.
-- Ensure the project remains focused on user value rather than unnecessary complexity.
+## Test focus
+Prioritise areas where the business impact of a defect is highest:
+- invalid state transitions
+- data integrity issues after closure
+- team/retrospective membership logic
+- action-item completion and filtering
+- invalid or missing input causing partial persistence
+- permission-adjacent behaviour in a system with no auth layer
 
-## 4. Scope
-### In Scope
-- Task and project tracking
-- Status reporting and progress summaries
-- AI-assisted insight generation
-- Documentation and operational workflow definitions
-- Repository-based project planning and iterations
+## Priority order
 
-### Out of Scope
-- Large-scale enterprise platform features at initial stage
-- Complex multi-tenant SaaS architecture unless justified later
-- Broad custom integrations beyond the project’s core workflows
-- Over-engineering before validated user needs are clear
+### 1) Happy-path flows to explore first
 
-## 5. Success Criteria
-The project is considered successful when it can:
-- help users understand current project status quickly,
-- support consistent task tracking and prioritization,
-- reduce manual effort in status updates and summaries,
-- provide a clean foundation for iteration based on real-world usage.
+#### Team creation and retrieval
+- Create a valid team with multiple members
+- Retrieve that team and verify record integrity
+- Create a second team with a different member set
+- Verify team details are isolated by team ID
 
-## 6. Stakeholders
-- Project owner / maintainer
-- Contributors and collaborators
-- End users who rely on task tracking and reporting
-- Future maintainers who extend the solution
+Why first: team creation underpins every other flow, and a broken team model can poison retrospective and feedback behavior.
 
-## 7. Roles and Responsibilities
-### Maintainer
-- Define direction and priorities
-- Review changes and repository quality
-- Ensure documentation remains current
+#### Retrospective lifecycle
+- Create a retrospective for a team
+- Retrieve it and confirm status = OPEN
+- Close the retrospective
+- Verify it is now CLOSED and remains retrievable
+- Attempt to create another retrospective on the same team while one is still OPEN
+- Attempt to reopen a closed retrospective
 
-### Contributors
-- Implement agreed features and improvements
-- Follow repository conventions and documentation guidance
-- Keep changes focused and testable
+Why first: the state-machine rules are central business logic and likely to have the highest operational impact if broken.
 
-### Users
-- Provide feedback on usability and value
-- Help identify gaps in workflows and reporting
-- Influence future feature priorities through practical usage
+#### Feedback item creation and retrieval
+- Add feedback items to an OPEN retrospective
+- Include all supported types: WENT_WELL, NEEDS_IMPROVEMENT, ACTION_ITEM
+- Retrieve the feedback list for the retrospective
+- Validate content, type, author, and association to the correct retrospective
 
-## 8. Principles
-- Keep the system understandable and maintainable.
-- Favor clear, incremental improvements over speculative complexity.
-- Design around user needs and practical workflow value.
-- Use AI as an augmenting tool, not a substitute for judgment.
-- Keep documentation explicit and easy to follow.
+Why first: retrospective usefulness depends on accurate capture and retrieval of feedback.
 
-## 9. Delivery Approach
-The work should proceed in small, testable increments:
-1. Establish the project foundation and documentation.
-2. Define the minimum viable tracking workflow.
-3. Add AI-assisted support where it adds clear value.
-4. Refine based on feedback and adoption.
-5. Expand only when the use case is validated.
+#### Action item completion and filtering
+- Create an ACTION_ITEM with a priority and completed = false
+- Retrieve action items by priority and completion status
+- Mark it completed
+- Verify completed items are still retrievable and cannot be uncompleted
 
-## 10. Risks and Constraints
-- Ambiguous requirements can lead to scope creep.
-- AI-generated outputs may need review for accuracy and relevance.
-- Over-engineering can slow delivery and reduce maintainability.
-- Minimal initial tooling may limit feature depth without disciplined iteration.
+Why first: action-item state is a special-case rule with explicit business constraints and a strong chance of partial implementation bugs.
 
-Mitigation: keep scope disciplined, validate assumptions early, and document decisions clearly.
+### 2) Edge cases to probe immediately after happy path
 
-## 11. Decision-Making
-Decisions should be made in favor of clarity, maintainability, and user value. If a proposed feature is not clearly tied to the project mission or a validated need, it should be deferred or documented as future work.
+#### Timing / state-boundary cases
+- Create a second OPEN retrospective for the same team before closing the first one
+- Close the same retrospective more than once
+- Add feedback to a retrospective after it has been closed
+- Try to delete or modify feedback in a closed retrospective
+- Mark an already-completed action item completed again
+- Attempt to uncomplete a completed action item
 
-## 12. Review and Evolution
-This charter should be reviewed periodically as the project grows. Any major change in goals, scope, or technical direction should be documented in the repository and reflected in the project documentation.
+#### Invalid or missing input
+- empty or whitespace-only team names
+- empty members list or null members
+- blank retrospective title/date
+- null or invalid retrospective status values
+- invalid feedback type values
+- blank feedback content or author name
+- invalid priority on action item
+- malformed JSON, missing required fields, wrong content type
 
-## 13. Summary
-AI Track PS is intended to be a practical, focused project for tracking work and leveraging AI to support better visibility and execution. The charter provides a foundation for disciplined delivery and sustainable growth.
+#### Permission-adjacent behaviour
+Because there is no authentication layer, probe whether the API enforces team membership correctly:
+- can a caller create a retrospective for another team without being a team member?
+- can a caller close a retrospective they did not create?
+- can a caller manipulate another team’s feedback or action items by using IDs?
+- can a team member with a matching name but no actual team association act as if they are a valid member?
+
+This is a likely risk area in a system where identity is effectively “just a string in the request body.”
+
+#### Concurrent / repeated-action cases
+- two users create an OPEN retrospective for the same team at the same time
+- two users close the same retrospective concurrently
+- submit duplicate completion actions for the same action item
+- add feedback while a retrospective is being closed or immediately after closure
+
+These are high-value checks because state validation bugs often show up under race-like conditions rather than in isolated happy-path runs.
+
+## Underspecified areas worth probing deliberately
+
+### 1) Team membership semantics are underdefined
+The brief says a team has a list of members stored as names, with no auth required. It does not define:
+- whether member names are unique within a team
+- whether names are case-insensitive
+- whether duplicates are allowed
+- whether empty strings or whitespace-only entries are valid
+- whether team membership is enforced at the API layer or only by convention
+
+These are likely to cause inconsistency in real usage and should be tested aggressively.
+
+### 2) “Any team member” is broad and under-specified
+The brief says any team member can create or close a retrospective. In a system with no auth layer, this means the real enforcement is likely to depend on request data rather than authenticated identity.
+
+Probe for:
+- arbitrary team-member names accepted without validation
+- ability to act on other teams via guessed IDs
+- inconsistent handling of member names across endpoints
+
+### 3) Closed-state rules are clear but may be only partially enforced
+The key rules are explicit:
+- closed retrospectives cannot be reopened
+- feedback in closed retrospectives cannot be modified or deleted
+- completed action items cannot be uncompleted
+
+But the brief does not define whether related objects must be completed before closure, or whether any workarounds exist that preserve the closed status while still permitting edits via alternate endpoints.
+
+### 4) Error handling contract is not fully described
+The brief says standard REST status codes and JSON bodies are expected, but not how business-rule violations are represented.
+
+Probe whether the API consistently returns:
+- 400 for invalid payloads
+- 404 for missing resources
+- 409 for conflicting states
+- clear validation messages instead of generic failures
+
+### 5) This is a state-machine-heavy domain with little explicit spec detail
+Critical transitions are implied rather than exhaustively specified:
+- when a team can be created with only one member
+- whether a retrospective can be created if another team exists with the same title
+- how action items behave when the retrospective is closed
+- whether the closed retrospective remains queryable for historical reporting
+
+These are exactly the places where hidden defects often live.
+
+## Test strategy for the session
+
+### Phase 1: smoke and invariant checks (0–15 min)
+Start with a minimal valid team, one retrospective, and one action item. Validate the core assumptions before doing anything ambitious.
+
+### Phase 2: core business-rules pass (15–45 min)
+Exercise the primary happy paths and the explicit business rules. This is where the API should either behave predictably or reveal obvious state bugs.
+
+### Phase 3: adversarial edge probing (45–75 min)
+Focus on invalid input, boundary states, inconsistent closures, and team-membership logic. This is where the “looks fine in demo” defects tend to surface.
+
+### Phase 4: risk triage (75–90 min)
+Capture only the most valuable issues: those that would create incorrect retrospective data, allow invalid state transitions, or expose the wrong team’s data.
+
+## Exit criteria for the charter
+The session is successful if it answers these three questions:
+- Does the backend maintain the state model correctly for teams, retrospectives, feedback, and action items?
+- Can invalid or missing data create partial or contradictory state?
+- Is the API safe enough to expose to real users without auth and with team-member logic based on names alone?
+
+If the answer to any of these is “not confidently,” the tool is not ready for a broad team roll-out without more work.
+
+## Most important defects to look for
+1. Multiple OPEN retrospectives for same team
+2. Reopening or re-closing a closed retrospective
+3. Editing/deleting feedback after retrospective closure
+4. Uncompleting completed action items
+5. Manipulating data for other teams through name or ID misuse
+6. Invalid payloads persisting partial state
+7. Duplicate member / membership logic undermining team isolation
+
+These are the rules most likely to break real-world trust if left unfixed.
