@@ -1,0 +1,998 @@
+{
+  "info": {
+    "_postman_id": "d998aaf0-f713-4f16-9990-7f6a4e9525e1",
+    "name": "RetroFlow QA - Core Business Rules",
+    "description": "Manual and runner-ready API checks for RetroFlow team creation, retrospective lifecycle, and feedback immutability. Run requests in order. The collection creates test data in the configured shared QA service; it does not clean up records.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://ai-track-ps-test-retroflow-production.up.railway.app",
+      "type": "string"
+    },
+    {
+      "key": "teamId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "teamId2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "retroId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "newRetroId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "feedbackId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "invalidTeamId",
+      "value": "99999999",
+      "type": "string"
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const name = pm.info.requestName;",
+          "if (name.includes('[NEGATIVE]') || name.includes('[PROBE]')) {",
+          "  pm.test('Request is rejected with a 4xx response', function () {",
+          "    pm.expect(pm.response.code).to.be.within(400, 499);",
+          "  });",
+          "} else if (name.includes('[EITHER]')) {",
+          "  pm.test('Request does not cause a server error', function () {",
+          "    pm.expect(pm.response.code).to.be.below(500);",
+          "  });",
+          "} else {",
+          "  pm.test('Request succeeds with a 2xx response', function () {",
+          "    pm.expect(pm.response.code).to.be.within(200, 299);",
+          "  });",
+          "}",
+          "if (pm.response.code >= 200 && pm.response.code < 300) {",
+          "  const body = pm.response.json();",
+          "  if (name.includes('TEAM-01 Create')) pm.collectionVariables.set('teamId', body.id);",
+          "  if (name.includes('TEAM-02 Create')) pm.collectionVariables.set('teamId2', body.id);",
+          "  if (name.includes('RETRO-01 Create')) pm.collectionVariables.set('retroId', body.id);",
+          "  if (name.includes('RETRO-03 Create')) pm.collectionVariables.set('newRetroId', body.id);",
+          "  if (name.includes('FEEDBACK-01 Add')) pm.collectionVariables.set('feedbackId', body.id);",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1 - Teams",
+      "item": [
+        {
+          "name": "TEAM-01 Create team with one member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"QA-JP {{$guid}} Team One\",\"members\":[\"Alice\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-01 Retrieve created team",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-02 Create team with multiple members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"QA-JP {{$guid}} Team Two\",\"members\":[\"Alice\",\"Bob\"]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-02 Retrieve created team",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId2}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId2}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-03 [NEGATIVE] Create team with empty members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"QA-JP {{$guid}} Empty Team\",\"members\":[]}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-04a [NEGATIVE] Create team without members property",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"QA-JP {{$guid}} Omitted Members\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            }
+          }
+        },
+        {
+          "name": "TEAM-04b [NEGATIVE] Create team with null members",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"QA-JP {{$guid}} Null Members\",\"members\":null}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Retrospective lifecycle",
+      "item": [
+        {
+          "name": "RETRO-01 Create first retrospective",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"QA-JP {{$guid}} Sprint Retro One\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-01 Retrieve created retrospective",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-02 [NEGATIVE] Attempt second open retrospective",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"QA-JP {{$guid}} Second Open Retro\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-02 Verify team still has only one open retro",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-04 [NEGATIVE] Create retrospective for nonexistent team",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"QA-JP Invalid Team Retro\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{invalidTeamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{invalidTeamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-01 Close the open retrospective",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}",
+                "close"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-01 Verify retrospective is closed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-02 [PROBE] Attempt to reopen closed retrospective",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"status\":\"OPEN\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-02 Verify retrospective remains closed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-03 [EITHER] Close already closed retrospective",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}",
+                "close"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSE-03 Verify retrospective remains closed",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{retroId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{retroId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-03 Create another retrospective after closure",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"QA-JP {{$guid}} Retro After Close\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        },
+        {
+          "name": "RETRO-03 Verify retrospectives for team",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/teams/{{teamId}}/retrospectives",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "teams",
+                "{{teamId}}",
+                "retrospectives"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Feedback",
+      "item": [
+        {
+          "name": "FEEDBACK-01 Add feedback to open retrospective",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"The demo went smoothly\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-01 Verify created feedback",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-02a Add WENT_WELL feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Clear sprint goal\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-02b Add NEEDS_IMPROVEMENT feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Handoffs were delayed\",\"type\":\"NEEDS_IMPROVEMENT\",\"submittedBy\":\"Bob\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-02c Add ACTION_ITEM feedback",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Document deployment steps\",\"type\":\"ACTION_ITEM\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-02 Verify all feedback types",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-03a [NEGATIVE] Add unsupported feedback type",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Bad type example\",\"type\":\"INVALID_TYPE\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-03b [NEGATIVE] Add feedback with empty content",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"\",\"type\":\"WENT_WELL\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "FEEDBACK-03 Verify invalid feedback was not added",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - Closed retrospective feedback protection",
+      "item": [
+        {
+          "name": "Close feedback-test retrospective before immutable checks",
+          "request": {
+            "method": "PUT",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/close",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "close"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-01 [NEGATIVE] Attempt to add feedback after close",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Late feedback attempt\",\"type\":\"NEEDS_IMPROVEMENT\",\"submittedBy\":\"Alice\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-01 Verify feedback list unchanged",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-02 [NEGATIVE] Attempt to modify feedback after close",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"content\":\"Changed after closure\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/feedback-items/{{feedbackId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "feedback-items",
+                "{{feedbackId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-02 Verify original feedback remains",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-03 [NEGATIVE] Attempt to delete feedback after close",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/feedback-items/{{feedbackId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "feedback-items",
+                "{{feedbackId}}"
+              ]
+            }
+          }
+        },
+        {
+          "name": "CLOSED-FEEDBACK-03 Verify original feedback still exists",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/retrospectives/{{newRetroId}}/feedback-items",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "retrospectives",
+                "{{newRetroId}}",
+                "feedback-items"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
