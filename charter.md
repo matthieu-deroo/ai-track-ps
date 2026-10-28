@@ -49,6 +49,7 @@ Why first: the state-machine rules are central business logic and likely to have
 - Retrieve the feedback list for the retrospective
 - Validate content, type, author, and association to the correct retrospective
 - Attempt to modify or delete feedback after the retrospective is closed and confirm the operation is rejected
+- Confirm that a team member cannot modify or delete feedback items created by another team member
 
 Why first: retrospective usefulness depends on accurate capture and retrieval of feedback.
 
@@ -56,7 +57,8 @@ Why first: retrospective usefulness depends on accurate capture and retrieval of
 - Create an ACTION_ITEM with a priority of `LOW`, `MEDIUM`, or `HIGH` and completed = false
 - Retrieve action items by priority and completion status
 - Mark it completed
-- Verify completed items are still retrievable and cannot be uncompleted
+- Verify completed items remain retrievable and cannot be uncompleted
+- Confirm that attempting to uncomplete a completed action item is rejected
 
 Why first: action-item state is a special-case rule with explicit business constraints and a strong chance of partial implementation bugs.
 
@@ -67,6 +69,7 @@ Why first: action-item state is a special-case rule with explicit business const
 - Close the same retrospective more than once
 - Add feedback to a retrospective after it has been closed
 - Try to delete or modify feedback in a closed retrospective
+- Try to modify or delete someone else’s feedback item while the retrospective is still OPEN
 - Mark an already-completed action item completed again
 - Attempt to uncomplete a completed action item
 
@@ -94,6 +97,7 @@ Because there is no authentication layer, probe whether the API enforces team me
 - can a caller close a retrospective they did not create?
 - can a caller manipulate another team’s feedback or action items by using IDs?
 - can a team member with a matching name but no actual team association act as if they are a valid member?
+- can one team member edit or delete another team member’s feedback item by changing the author name or using a guessed ID?
 
 This is a likely risk area in a system where identity is effectively “just a string in the request body.”
 
@@ -102,6 +106,7 @@ This is a likely risk area in a system where identity is effectively “just a s
 - two users close the same retrospective concurrently
 - submit duplicate completion actions for the same action item
 - add feedback while a retrospective is being closed or immediately after closure
+- attempt to uncomplete the same completed action item concurrently
 
 These are high-value checks because state validation bugs often show up under race-like conditions rather than in isolated happy-path runs.
 
@@ -125,6 +130,7 @@ Probe for:
 - arbitrary team-member names accepted without validation
 - ability to act on other teams via guessed IDs
 - inconsistent handling of member names across endpoints
+- other members modifying feedback authored by a different team member
 
 ### 3) Closed-state rules are clear but may be only partially enforced
 The key rules are explicit:
