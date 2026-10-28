@@ -75,33 +75,36 @@ business-state error.
 | Priority | Business rule / behavior | Likelihood | Impact | Score | Why this priority |
 |---:|---|:---:|:---:|:---:|---|
 | **1** | Feedback in a closed retrospective cannot be modified or deleted. | 3 | 3 | **9** | This is the strongest record-integrity safeguard. A silent edit or deletion can erase concerns or commitments after the team believes the discussion is final, undermining the historical record across teams. Test update and delete separately, then retrieve the retrospective to verify the original item remains unchanged. |
-| **2** | A closed retrospective cannot be reopened. | 2 | 3 | **6** | Reopening permits activity against a record that should be final and can weaken the protection of closed feedback. The state transition is one-way by definition, so test attempts to reopen through every available status-changing route and verify the status remains closed. |
-| **3** | A completed action item cannot be uncompleted. | 2 | 3 | **6** | Reversal can falsely show that agreed work is outstanding or allow completion history to be rewritten. This is a one-way state rule; test both the completion operation and any general update route that could alter the flag. |
-| **4** | A team may have only one open retrospective at a time. | 3 | 2 | **6** | The rule is central to a coherent team workflow and may be missed in request validation or concurrent creation. Multiple open records could split discussion and feedback. Test sequential creation and, if time permits, near-simultaneous creation for the same team. |
-| **5** | Feedback may be added only to an open retrospective. | 2 | 2 | **4** | Accepting late feedback after closure conflicts with the final-record boundary and can make retrospective history inconsistent. Test adding to both open and closed records. |
-| **6** | A team must have at least one member. | 2 | 2 | **4** | A memberless team cannot use the intended team-member workflow and may leave unusable records. Test empty and omitted member lists, plus a valid one-member team. |
-| **7** | A retrospective belongs to a valid team; a member of that team may create or close it. | 2 | 2 | **4** | Incorrect or nonexistent team references can orphan records; allowing a non-member to act would violate the described workflow. Authentication is absent, so verify how membership is represented and enforced by the API rather than assuming it. |
-| **8** | Feedback belongs to and can be retrieved for the correct retrospective. | 2 | 2 | **4** | Misassociated or missing feedback undermines the record even when create requests succeed. Verify retrieval after creation and ensure items from another retrospective are not returned. |
-| **9** | Action items have valid priority and completion state and can be filtered by priority and completed status. | 2 | 2 | **4** | Incorrect filters or invalid action-item data can hide work or give teams misleading progress. Test each priority, both completion values, and representative combined filter use if supported. |
-| **10** | Retrospective title, date, and status and feedback content/type/submitter are represented correctly. | 2 | 1 | **2** | Basic data validation and mapping matter, but defects here are generally more visible and recoverable than silent state-rule violations. Check required fields, enum values, malformed values, and round-trip response data after the higher-impact rules. |
+| **2** | Concurrent feedback from multiple team members is persisted once with the correct content and submitter; a feedback/close race preserves a valid final state. | 2 | 3 | **6** | Lost or duplicated feedback or incorrect attribution would make the shared retrospective record incomplete or misleading. A race with closure could also allow feedback to be appended after finalization. Test parallel submissions and race a submission against closing, then retrieve and verify all resulting records. |
+| **3** | A closed retrospective cannot be reopened. | 2 | 3 | **6** | Reopening permits activity against a record that should be final and can weaken the protection of closed feedback. The state transition is one-way by definition, so test attempts to reopen through every available status-changing route and verify the status remains closed. |
+| **4** | A completed action item cannot be uncompleted. | 2 | 3 | **6** | Reversal can falsely show that agreed work is outstanding or allow completion history to be rewritten. This is a one-way state rule; test both the completion operation and any general update route that could alter the flag. |
+| **5** | A team may have only one open retrospective at a time. | 3 | 2 | **6** | The rule is central to a coherent team workflow and may be missed in request validation or concurrent creation. Multiple open records could split discussion and feedback. Test sequential creation and, if time permits, near-simultaneous creation for the same team. |
+| **6** | Feedback may be added only to an open retrospective. | 2 | 2 | **4** | Accepting late feedback after closure conflicts with the final-record boundary and can make retrospective history inconsistent. Test adding to both open and closed records. |
+| **7** | A team must have at least one member. | 2 | 2 | **4** | A memberless team cannot use the intended team-member workflow and may leave unusable records. Test empty and omitted member lists, plus a valid one-member team. |
+| **8** | A retrospective belongs to a valid team; a member of that team may create or close it. | 2 | 2 | **4** | Incorrect or nonexistent team references can orphan records; allowing a non-member to act would violate the described workflow. Authentication is absent, so verify how membership is represented and enforced by the API rather than assuming it. |
+| **9** | Feedback belongs to and can be retrieved for the correct retrospective. | 2 | 2 | **4** | Misassociated or missing feedback undermines the record even when create requests succeed. Verify retrieval after creation and ensure items from another retrospective are not returned. |
+| **10** | Action items have valid priority and completion state and can be filtered by priority and completed status. | 2 | 2 | **4** | Incorrect filters or invalid action-item data can hide work or give teams misleading progress. Test each priority, both completion values, and representative combined filter use if supported. |
+| **11** | Retrospective title, date, and status and feedback content/type/submitter are represented correctly. | 2 | 1 | **2** | Basic data validation and mapping matter, but defects here are generally more visible and recoverable than silent state-rule violations. Check required fields, enum values, malformed values, and round-trip response data after the higher-impact rules. |
 
 ### Execution order and rationale
 
 1. **Closed-record integrity (priority 1):** start with changing and deleting feedback
    after closure. It has the highest combined risk and directly tests whether finalized
    history can be trusted.
-2. **Irreversible transitions (priorities 2–3):** test retrospective reopening and
-   action-item uncompletion. These mistakes alter the meaning of records and can
-   invalidate the protections around completed work.
-3. **Open-workflow consistency (priorities 4–5):** test the one-open-retrospective limit
+2. **Multi-user and irreversible state (priorities 2–4):** test parallel feedback
+   submissions and the feedback/close race, then test retrospective reopening and
+   action-item uncompletion. Concurrent record loss or an invalid final state can corrupt
+   the shared history; the one-way state rules can make that corruption difficult to
+   correct.
+3. **Open-workflow consistency (priorities 5–6):** test the one-open-retrospective limit
    and feedback creation rules. These defects can fragment a team's work or append
    information after closure; check same-team behavior and verify that other teams remain
    independent.
-4. **Valid ownership and usable data (priorities 6–8):** test team membership,
+4. **Valid ownership and usable data (priorities 7–9):** test team membership,
    retrospective/team/member relationships, and feedback retrieval. They underpin normal
    usage but are less likely than post-close mutation to silently rewrite established
    history.
-5. **Action filtering and field validation (priorities 9–10):** cover filter accuracy,
+5. **Action filtering and field validation (priorities 10–11):** cover filter accuracy,
    enum and required-field validation, and response mapping. These affect discoverability
    and usability; run them after the state-integrity checks because their direct business
    impact is generally lower.
